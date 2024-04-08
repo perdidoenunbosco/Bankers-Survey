@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Connecting chartjs with a CSV using fetch</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+      .chartMenu {
+        width: 100vw;
+        height: 40px;
+        background: #1A1A1A;
+        color: rgba(54, 162, 235, 1);
+      }
+      .chartMenu p {
+        padding: 10px;
+        font-size: 20px;
+      }
+      .chartCard {
+        width: 100vw;
+        height: calc(100vh - 40px);
+        background: rgba(54, 162, 235, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .chartBox {
+        width: 700px;
+        padding: 20px;
+        border-radius: 20px;
+        border: solid 3px rgba(54, 162, 235, 1);
+        background: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chartMenu">
+      <p>WWW.CHARTJS3.COM (Chart JS <span id="chartVersion"></span>)</p>
+    </div>
+    <div class="chartCard">
+      <div class="chartBox">
+        <canvas id="myChart"></canvas>
+        <!--<button onlclick="getData()">Check</button>-->
+      </div>
+    </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js/dist/chart.umd.min.js"></script>
+    <script>
+
+console.log("first hi");
+drawChart();
+
+    // setup 
+    async function drawChart(){
+        const datapoints = await getData();
+        const data = {
+        labels: datapoints.labels,
+        datasets: [{
+            label: datapoints.stockname1,
+            data: datapoints.stockdata1,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            tension: 0.4
+        },{
+            label: datapoints.stockname2,
+            data: datapoints.stockdata2,
+            backgroundColor: 'rgba(255, 26, 104, 0.2)',
+            borderColor: 'rgba(255, 26, 104, 1)',
+            tension: 0.4
+        },{
+            label: datapoints.stockname3, 
+            data: datapoints.stockdata3,
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            borderColor: 'rgba(0, 0, 0, 1)',
+            tension: 0.4
+        }]
+        };
+
+        // config 
+        const config = {
+        type: 'line',
+        data,
+        options: {
+            scales: {
+            y: {
+                beginAtZero: true
+            }
+            }
+        }
+        };
+
+        // render init block
+        const myChart = new Chart(
+        document.getElementById('myChart'),
+        config
+        );
+
+        // Instantly assign Chart.js version
+        const chartVersion = document.getElementById('chartVersion');
+        chartVersion.innerText = Chart.version;
+    };
+
+    async function getData() {
+
+        const labels = [];
+        const stockdata1 = [];
+        const stockdata2 = [];
+        const stockdata3 = [];
+
+        const url = 'https://wiki.travissellsmemphis.com/testdata.csv' // PATH TO CSV FILE    
+       
+        const response =  await fetch(url);
+        const tabledata = await response.text();
+        //console.log(tabledata);
+        const table = tabledata.split('\n').slice(1);
+        //console.log(table);
+        table.forEach(row => {
+            const column = row.split(',');
+            const year = column[0];
+            const stockprice1 = column[1];
+            const stockprice2 = column[2];
+            const stockprice3 = column[3];
+            labels.push(year);
+            stockdata1.push(stockprice1);
+            stockdata2.push(stockprice2);
+            stockdata3.push(stockprice3);
+        
+        });
+ 
+
+
+        const stockname1 = stockdata1.slice(0,1);
+        const stockname2 = stockdata2.slice(0,1);
+        const stockname3 = stockdata3.slice(0,1);
+
+        labels.shift();
+        stockdata1.shift();
+        stockdata2.shift();
+        stockdata3.shift();
+
+
+        return {labels, stockdata1, stockdata2, stockdata3, stockname1, stockname2, stockname3};
+    }
+    </script>
+
+  </body>
+</html>

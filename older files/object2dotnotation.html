@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Object to NameSpace Con</title>
+</head>
+
+<body>
+<h1 align="center">JavaScript Object to NameSpace Converter</h1>
+<h2>Paste Object Here:</h2>
+<textarea id="JS_ObjectTextArea" name="JS_Object" rows="4" cols="50" >
+</textarea>
+<br>
+<button onclick="showResult()">Show Dot Notation</button>
+<button onclick="testpsuedoeval()">Test Psuedo Eval</button>
+<h2>NameSpace Dot Notation result:</h2>
+<div id="JS_DotNotatoionTextArea">
+This is where the object converted to dot notation would appear.
+</div>
+<div>
+<h2>Sample Data:</h2>
+{a: {
+  b: 1,
+  c: {
+    d: 8
+  }
+},
+e: {
+  f: {
+    g: 9
+  },
+  h: 10,
+  i: [1, 2, 3]
+}
+}
+</div>
+</body>
+<script>
+
+var data={};
+  // var data = {
+  //     // a: {
+  //     //   b: 1,
+  //     //   c: {
+  //     //     d: 8
+  //     //   }
+  //     // },
+  //     // e: {
+  //     //   f: {
+  //     //     g: 9
+  //     //   },
+  //     //   h: 10,
+  //     //   i: [1, 2, 3]
+  //     // }
+  //   };
+    
+    
+    function toDotList(obj) {
+      function walk(into, obj, prefix = []) {
+        Object.entries(obj).forEach(([key, val]) => {
+          if (typeof val === "object" && !Array.isArray(val)) walk(into, val, [...prefix, key]);
+          else into[[...prefix, key].join(".")] = val;
+        });
+      }
+      const out = {};
+      walk(out, obj);
+      return out;
+    };
+    
+
+    console.log(toDotList(data));
+
+    function testpsuedoeval (){
+      let userInput = "2+4";
+      let result = Function("return " + userInput)(); // which is same as "return 2+4"
+      document.getElementById("JS_DotNotatoionTextArea").innerText = result
+    }
+    
+    function showResult() {
+     
+// The data variable is in object notation. you are passing in the object as a string
+
+    // this takes the value out of the text box and puts it into the 'data' variable
+    // 'innertext' was blank, 'value' did.
+    // data = document.getElementById("JS_ObjectTextArea").value;
+    console.log("'data' variable is:" + document.getElementById("JS_ObjectTextArea").value);
+    console.log("' - data' is of type" + typeof(data));
+   
+    //This works but its very hackable
+    eval('data='+ document.getElementById("JS_ObjectTextArea").value);
+   
+    // the var in this works - difference the single qoutes
+    // let evaluationString = "'var data = '+ document.getElementById('JS_ObjectTextArea').value";
+    // let result = Function("return " + evaluationString)(); // which is same as "return CODE"
+    
+    // let evaluationString =  "document.getElementById('JS_ObjectTextArea').value";
+    // let result = Function( "return data = " + evaluationString)(); // which is same as "return CODE" which executes
+    
+    console.log("'data' after Function()()");
+    console.log("' - data' is of type" + typeof(data));
+    console.log(data);
+    // console.log("result is of type" + typeof(result));
+    // console.log("result value:");
+    // console.log(result);
+   
+    // passes the result into the data variable
+    //data = result;
+    
+    // this shows the object by reference
+    // document.getElementById("JS_DotNotatoionTextArea").innerText = toDotList(data);
+    
+    // this can show it correctly mostly
+    document.getElementById("JS_DotNotatoionTextArea").innerHTML = JSON.stringify(toDotList(data));
+
+
+    //doent really do anything
+    // Function ("'var data='+ document.getElementById('JS_ObjectTextArea').value");
+   
+    // what you are putting in is not JSON so you cant parse it on entry
+    // data = JSON.parse(data); 
+    
+    // this gives an object reference
+    // document.getElementById("JS_DotNotatoionTextArea").innerText = data;
+
+    // this puts qoutes around the strings
+    // document.getElementById("JS_DotNotatoionTextArea").innerText = JSON.stringify(data);
+
+    
+    console.log("toDotList(data) Value:")
+    console.log(toDotList(data))
+    
+    } 
+</script>
+</html>

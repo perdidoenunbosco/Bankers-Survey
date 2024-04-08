@@ -1,0 +1,52 @@
+h1{
+    text-align: center;
+    width: 100%;
+    border-style: solid;
+    border-width: 1px;
+  
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+    /* these settings cause a melt */
+    /* border-style: solid; */
+    /* border-width: 5px; */
+  
+  }
+
+#ChartHeaderDiv {
+  height: 75%;
+  width: 75%;
+  background-color: rgb(255, 189, 189);
+  text-align: center;
+  border-style: solid;
+  border-width: 1px;
+  
+}
+
+#Chart_Div{
+  height: 75%;
+  width: 75%;
+  background-color: rgb(224, 224, 224);
+  border-style: solid;
+  border-width: 1px;
+  text-align: center;
+}
+
+h2{
+    border-style: solid;
+    border-width: 1px;    
+}
+
+#legendDiv {
+    border-style: solid;
+    border-width: 1px;
+    background-color: rgb(179, 196, 201);
+    margin: 10px;
+}
+
+/* #legendList{
+    any css seems to overide the css in the parent div
+} */
+
