@@ -11,49 +11,89 @@ var datasets = [];
 // Set a callback to run when the Google Visualization API is loaded.
 google.charts.setOnLoadCallback(feedURLs);
 
+// displayDatasets(labels, datasets);
+
 // loops through a list of URL's to spreadsheets
-function feedURLs(){
+async function feedURLs(){
   
   URLs = [
-
     "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=Recession_Data&headers=1",
     "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=transposed&headers=1",
-
   ];
 
-  for (URL of URLs) {
-    
-    console.log(URL);
-    runInit = initChart(URL); // this is the one that needs to be waited on.
-    console.log("runInit Value: ", runInit);
-    console.log("left initchart from feedURLs()"); 
 
-  };
+    for (let i=0; i < URLs.length; i++) {
+      
+      console.log(URLs[i]);
+    
+      await initChart(URLs[i]); 
+
+      console.log("left initchart from feedURLs() for loop"); 
+    };
+
+    //parse that array so you can feed it to displayDatasets()
+    // const labels = data[0];
+    // const datasets = data[1];
+
+    //Throw all the data into the chart
+    //displayDatasets(labels, datasets);
+    
 } // END feedURLs
 
 function initChart(URL) {  
-  console.log("entering initChart");
-
-    // lock and load the URL
-     var  query =  new google.visualization.Query(URL);
+  // the promise is here so that Async and Await will have any effect
+  return new Promise ((resolve, reject) => {
     
-    // select everything in the spreadsheat
-    query.setQuery('select *');
-   // actually do the thing
-    console.log("Calling query.send"); 
-    query.send(async function(response) {
-      console.log("calling handleQueryResponse"); 
-      await handleQueryResponse(response)  
-      console.log("response: ", response);
-    }); // END query.send
+      console.log("entering initChart");
+      // lock and load the URL
+      var query =  new google.visualization.Query(URL);
+      // select everything in the spreadsheat
+      query.setQuery('select *');
+    
 
+      // actually do the thing
+      console.log("Calling query.send"); 
+      query.send( function(response) {
+          console.log("calling handleQueryResponse");
+          handleQueryResponse(response)  
+
+        }// END function(response)
+      ); // END query.send
+
+      resolve(()=>{return true})
+      reject(()=>{return console.log("Promise Rejected");})
+    } // END promise arrow function
+
+  );//END promise
+
+
+  
 } //END initChart
 
-async function handleQueryResponse(response) {
+
+function handleQueryResponse(response) {
     
     console.log("entering handleQueryResponse");
     //setup data extraction from object containing spreadsheet data 
-    var data = await response.getDataTable();
+
+    // parse out the response fron querysend() and put it into a data object for the chart.
+    data = parseStuff(response);
+    console.log("leaving handleQueryResponse");
+
+
+    //parse that array so you can feed it to displayDatasets()
+    const labels = data[0];
+    const datasets = data[1];
+
+    //Throw all the data into the chart
+    displayDatasets(labels, datasets);
+    
+
+  } //END handleQueryResponse
+
+function parseStuff(response){    
+   console.log("entering parse stuff");
+    var data = response.getDataTable();
     var columns = data.getNumberOfColumns();
     var rows = data.getNumberOfRows();
     
@@ -89,6 +129,7 @@ async function handleQueryResponse(response) {
       }
       // append formating data for the given series
       var dataset = {
+        type: "line",
         label: dataj.rows[i].c[0].v,
         backgroundColor: colors[i],
         borderColor: colors[i],
@@ -99,15 +140,25 @@ async function handleQueryResponse(response) {
       
 
     } //END for loops
-   
-    displayDatasets(labels, datasets);
-    console.log("leaving handleQueryResponse");
-  } //END handleQueryResponse
+
+
+    console.log("leaving  parse stuff");
+
+
+    
+    return [labels, datasets]
+
+
+   }// END parseStuff
+
+  
 
 // this must be called within handleQueryResponse or used as a callback function 
 //or this function will outrun handleQueryResponse and display undefined
 function displayDatasets (labels, datasets){
-  
+  console.log("entering display datasets");
+
+  console.dir(datasets)
     const chartdata = {
         labels: labels,
         datasets: datasets
@@ -121,6 +172,7 @@ function displayDatasets (labels, datasets){
       }
   
       // setup the chart view options 
+      let chart;
       var canvas = document.getElementById("myChart");
       var setup = {
         type: 'line',
@@ -165,7 +217,9 @@ function displayDatasets (labels, datasets){
         }
       }
       //change one of the data series to a bar chart
-       setup.data.datasets[8].type = 'bar';
+      // chartdata.datasets[8].type = 'bar';
+      console.log("testing chart type: ")
+      console.dir(chartdata)
       // setup.data.datasets[8].yAxisID = "Recession"
       // setup.data.datasets[8].categoryPercentage = 1.0
       // setup.data.datasets[8].barPercentage = 1.0
@@ -178,13 +232,21 @@ function displayDatasets (labels, datasets){
       
       
       // send all packaged data for chart to render
-      chart = new Chart(canvas, setup);
 
+        if (this.chart){
+          console.log("destroy chart");
+          this.chart.destroy()
+          this.chart = new Chart(canvas, setup);
+        }else{
+          this.chart = new Chart(canvas, setup);
+        }
     
-      console.dir(setup)
+      // console.dir(setup)
       // AND YET IT WORKS HERE AND SHOWS THE VALUE
       // console.dir(setup.options.scales.Recession.position)
       //MAYBE YOU TRY TO EXPLICITY DEFINE THE PROPERTY IN THE OBJECT
       //MAYBE YOU USE AWAITS
+
+      console.log("leaving display datasets");
 } //END displayDatasets
 
