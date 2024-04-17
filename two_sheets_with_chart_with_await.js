@@ -9,11 +9,32 @@ google.charts.load('current', {
 var datasets = [];
 
 // Set a callback to run when the Google Visualization API is loaded.
-google.charts.setOnLoadCallback(feedURLs);
+google.charts.setOnLoadCallback(processControl);
 
-// displayDatasets(labels, datasets);
 
-// loops through a list of URL's to spreadsheets
+
+async function processControl(){ 
+  
+  // this must be async to actuall have any control of processes
+  
+  await feedURLs(); //async
+    //await initChart(URL) - promised based
+      //await Query.send FORCED promise based 
+      // await handleQueryResponse - promised based
+        //parseStuff - promised based - no async awaits internally
+
+        console.log("What is datasets from Global space: ");
+        console.log(datasets);
+
+
+//populateChartData
+//displayDatasets
+    
+
+
+}
+
+// loops through a list of URL's to spreadsheets to be fed into parsing engines
 async function feedURLs(){
   
   URLs = [
@@ -30,19 +51,12 @@ async function feedURLs(){
 
       console.log("left initchart from feedURLs() for loop"); 
     };
-
-    //parse that array so you can feed it to displayDatasets()
-    // const labels = data[0];
-    // const datasets = data[1];
-
-    //Throw all the data into the chart
-    //displayDatasets(labels, datasets);
     
 } // END feedURLs
 
-function initChart(URL) {  
+async function initChart(URL) {
   // the promise is here so that Async and Await will have any effect
-  return new Promise ((resolve, reject) => {
+  return new Promise (async(resolve, reject) => {
     
       console.log("entering initChart");
       // lock and load the URL
@@ -51,48 +65,69 @@ function initChart(URL) {
       query.setQuery('select *');
     
 
-      // actually do the thing
+      // actually do the thing fukya
       console.log("Calling query.send"); 
-      query.send( function(response) {
-          console.log("calling handleQueryResponse");
-          handleQueryResponse(response)  
+      console.log("query.Hw before send: ", query.Hw );
 
+      query.send(async function(response) {
+
+        console.log("Inside query.send before handleQueryResponse");
+        await handleQueryResponse(response)
+        console.log("Past handleQueryResponse thats inside query.send");
         }// END function(response)
-      ); // END query.send
+      ) // END query.send
 
-      resolve(()=>{return true})
-      reject(()=>{return console.log("Promise Rejected");})
+
+
+      // if (query.hw == null){
+      //   console.log("Null test on Hw is true");
+      // }else{
+      //   console.log("Null test on Hw is false");
+      // }
+
+      console.log('%c query Hw after send: ', 'background: #222; color: #badaff');
+      console.dir(query.Hw)
+      console.log(query.Hw)
+      // console.log("%c initcharts object: ", 'background: #ff6666; color: #000');
+      // console.dir(initChart)
+
+      console.log("leaving initChart");
+      resolve(()=>{console.log("iniChart resolved ");return true})
+      reject(()=>{return console.log("Promise from initChart Rejected");})
     } // END promise arrow function
 
   );//END promise
-
-
   
 } //END initChart
 
+async function handleQueryResponse(response) {
+  console.log("entering handleQueryResponse");
 
-function handleQueryResponse(response) {
-    
-    console.log("entering handleQueryResponse");
+  // the promise is here so that Async and Await will have any effect
+    return new Promise (async (resolve, reject) => {
+
     //setup data extraction from object containing spreadsheet data 
 
     // parse out the response fron querysend() and put it into a data object for the chart.
-    data = parseStuff(response);
+    await parseStuff(response);
+
     console.log("leaving handleQueryResponse");
+  
 
-
-    //parse that array so you can feed it to displayDatasets()
-    const labels = data[0];
-    const datasets = data[1];
-
-    //Throw all the data into the chart
-    displayDatasets(labels, datasets);
     
+    resolve(()=>{return true})
+    reject(()=>{return console.log("Promise from handleQueryResponse Rejected");})
+  } // END promise arrow function
+);//END promise
 
-  } //END handleQueryResponse
+} //END handleQueryResponse
 
 function parseStuff(response){    
    console.log("entering parse stuff");
+  
+   // the promise is here so that Async and Await will have any effect
+  return new Promise ((resolve, reject) => {
+  
     var data = response.getDataTable();
     var columns = data.getNumberOfColumns();
     var rows = data.getNumberOfRows();
@@ -140,25 +175,17 @@ function parseStuff(response){
       
 
     } //END for loops
+    console.log("leaving parseStuff");
 
+    resolve(()=>{return true})
+    reject(()=>{return console.log("Promise from handleQueryResponse Rejected");})
+  } // END promise arrow function
+);//END promise
 
-    console.log("leaving  parse stuff");
+}// END parseStuff
 
-
-    
-    return [labels, datasets]
-
-
-   }// END parseStuff
-
-  
-
-// this must be called within handleQueryResponse or used as a callback function 
-//or this function will outrun handleQueryResponse and display undefined
-function displayDatasets (labels, datasets){
-  console.log("entering display datasets");
-
-  console.dir(datasets)
+function populateChartData (datasets){
+    console.dir(datasets)
     const chartdata = {
         labels: labels,
         datasets: datasets
@@ -170,7 +197,8 @@ function displayDatasets (labels, datasets){
         // console.log(tooltipItems)
         //return 'Testing'; // this is used if you want one label and is pretty worthless in this context
       }
-  
+      
+      // you might make come of these globaly declarations in the front end of the code
       // setup the chart view options 
       let chart;
       var canvas = document.getElementById("myChart");
@@ -232,6 +260,19 @@ function displayDatasets (labels, datasets){
       
       
       // send all packaged data for chart to render
+   
+   
+   
+   
+    // this may not be what you need to return at this point
+    //return [labels, datasets]
+
+}// END populateChartData
+
+function displayDatasets (){
+  console.log("entering display datasets");
+
+  // yeah all this thisis and charts are a mess to deal with
 
         if (this.chart){
           console.log("destroy chart");
