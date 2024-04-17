@@ -27,12 +27,10 @@ async function processControl(){
         console.log(datasets);
 
 
-//populateChartData
-//displayDatasets
+// populateChartData()
+// displayDatasets()
     
-
-
-}
+}// END processControl
 
 // loops through a list of URL's to spreadsheets to be fed into parsing engines
 async function feedURLs(){
@@ -46,17 +44,20 @@ async function feedURLs(){
     for (let i=0; i < URLs.length; i++) {
       
       console.log(URLs[i]);
-    
-      await initChart(URLs[i]); 
 
-      console.log("left initchart from feedURLs() for loop"); 
+      console.log("before initchart await");
+      await initChart(URLs[i]); 
+      console.log("after initchart await");
+
+      console.log("left initchart and back in feedURLs() for loop"); 
     };
     
 } // END feedURLs
 
-async function initChart(URL) {
+function initChart(URL) {
+
   // the promise is here so that Async and Await will have any effect
-  return new Promise (async(resolve, reject) => {
+  return new Promise ((resolve, reject) => {
     
       console.log("entering initChart");
       // lock and load the URL
@@ -69,39 +70,27 @@ async function initChart(URL) {
       console.log("Calling query.send"); 
       console.log("query.Hw before send: ", query.Hw );
 
-      query.send(async function(response) {
+      query.send(function (response) {
+          console.log("Inside query.send before handleQueryResponse");
+            if (response){ 
+              handleQueryResponse(response)
+              resolve();
+            }// END if
+            
+          
+          console.log("Past handleQueryResponse thats inside query.send");
 
-        console.log("Inside query.send before handleQueryResponse");
-        await handleQueryResponse(response)
-        console.log("Past handleQueryResponse thats inside query.send");
-        }// END function(response)
+          }// END function(response)
       ) // END query.send
-
-
-
-      // if (query.hw == null){
-      //   console.log("Null test on Hw is true");
-      // }else{
-      //   console.log("Null test on Hw is false");
-      // }
-
-      console.log('%c query Hw after send: ', 'background: #222; color: #badaff');
-      console.dir(query.Hw)
-      console.log(query.Hw)
-      // console.log("%c initcharts object: ", 'background: #ff6666; color: #000');
-      // console.dir(initChart)
-
-      console.log("leaving initChart");
-      resolve(()=>{console.log("iniChart resolved ");return true})
-      reject(()=>{return console.log("Promise from initChart Rejected");})
+      
+      console.log("leaving initChart with a promise made");
     } // END promise arrow function
-
   );//END promise
   
 } //END initChart
 
 async function handleQueryResponse(response) {
-  console.log("entering handleQueryResponse");
+  console.log("entering handleQueryResponse:");
 
   // the promise is here so that Async and Await will have any effect
     return new Promise (async (resolve, reject) => {
@@ -113,9 +102,10 @@ async function handleQueryResponse(response) {
 
     console.log("leaving handleQueryResponse");
   
-
+    return "done"
     
-    resolve(()=>{return true})
+    resolve(()=>{
+      console.log("Promise from handleQueryResponse resolved");})
     reject(()=>{return console.log("Promise from handleQueryResponse Rejected");})
   } // END promise arrow function
 );//END promise
