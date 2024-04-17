@@ -7,7 +7,7 @@ google.charts.load('current', {
   
 // a globally declared container for the datasets
 var datasets = [];
-
+var labels =[];
 // Set a callback to run when the Google Visualization API is loaded.
 google.charts.setOnLoadCallback(processControl);
 
@@ -27,8 +27,8 @@ async function processControl(){
         console.log(datasets);
 
 
-// populateChartData()
-// displayDatasets()
+populateChartData()
+displayDatasets()
     
 }// END processControl
 
@@ -174,7 +174,7 @@ function parseStuff(response){
 
 }// END parseStuff
 
-function populateChartData (datasets){
+function populateChartData (){
     console.dir(datasets)
     const chartdata = {
         labels: labels,
@@ -261,7 +261,6 @@ function populateChartData (datasets){
 
 function displayDatasets (){
   console.log("entering display datasets");
-
   // yeah all this thisis and charts are a mess to deal with
 
         if (this.chart){
