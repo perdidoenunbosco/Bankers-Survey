@@ -7,7 +7,8 @@ google.charts.load('current', {
   
 // a globally declared container for the datasets
 var datasets = [];
-var labels =[];
+var  labels =new Set();
+
 // Set a callback to run when the Google Visualization API is loaded.
 google.charts.setOnLoadCallback(processControl);
 
@@ -28,7 +29,7 @@ async function processControl(){
 
 
 populateChartData()
-displayDatasets()
+// displayDatasets()
     
 }// END processControl
 
@@ -36,8 +37,8 @@ displayDatasets()
 async function feedURLs(){
   
   URLs = [
-    "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=Recession_Data&headers=1",
     "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=transposed&headers=1",
+    "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=Recession_Data&headers=1",
   ];
 
 
@@ -66,7 +67,7 @@ function initChart(URL) {
       query.setQuery('select *');
     
 
-      // actually do the thing fukya
+      // actually do the thing
       console.log("Calling query.send"); 
       console.log("query.Hw before send: ", query.Hw );
 
@@ -130,10 +131,11 @@ function parseStuff(response){
     dataj = JSON.parse(data.toJSON());
     
     // pull out data for each series label skipping the A1 cell it appears
-    const labels = [];
+    // labels = [];
     for (c = 1; c < dataj.cols.length; c++) {
       if (dataj.cols[c].label != "") {
-        labels.push(dataj.cols[c].label);
+        // labels.push(dataj.cols[c].label);
+        labels.add(dataj.cols[c].label);
       }
 
     }
@@ -174,42 +176,28 @@ function parseStuff(response){
 
 }// END parseStuff
 
-function populateChartData (){
-    console.dir(datasets)
+function populateChartData(){
+  
+
+  labels = Array.from(labels);
+  console.log("Labels: ", labels);
+
     const chartdata = {
         labels: labels,
         datasets: datasets
       };
-  
-      // tooltip - do you need this function anymore?
-      const titleTooltip = (tooltipItems) => {
-        // console.log("tooltipItems")
-        // console.log(tooltipItems)
-        //return 'Testing'; // this is used if you want one label and is pretty worthless in this context
-      }
-      
-      // you might make come of these globaly declarations in the front end of the code
-      // setup the chart view options 
-      let chart;
+
       var canvas = document.getElementById("myChart");
       var setup = {
         type: 'line',
         data: chartdata,
         options: {
-          scales:{
-            Recession: {
-              position: "right"
-            },
-            
-          },
+
           maintainAspectRatio: false,  // *** Important : this is required or a strange vanishing zoom out effect occurs with the graph.
           plugins: {
             tooltip: {
               yAlign:'bottom',
               displayColors: false,
-              callbacks: {
-                title: titleTooltip
-              }
             },
             zoom: {
               pan: {
@@ -234,49 +222,10 @@ function populateChartData (){
           responsive: true,
         }
       }
-      //change one of the data series to a bar chart
-      // chartdata.datasets[8].type = 'bar';
-      console.log("testing chart type: ")
-      console.dir(chartdata)
-      // setup.data.datasets[8].yAxisID = "Recession"
-      // setup.data.datasets[8].categoryPercentage = 1.0
-      // setup.data.datasets[8].barPercentage = 1.0
-      // setup.data.datasets[8].backgroundColor = `grey`
-      // setup.data.datasets[8].borderColorc = `grey`
 
-      // THIS THROUGHS A GIANT TYPE ERROR AND STOPS EXECUTION, 
-      //THE TOP ONES ALSO THROW ERRORS BUT THE CHART STILL WORKS
-    //   setup.options.scales.Recession.position = "right"
-      
-      
       // send all packaged data for chart to render
-   
-   
-   
-   
-    // this may not be what you need to return at this point
-    //return [labels, datasets]
+      chart = new Chart(canvas, setup);
 
-}// END populateChartData
 
-function displayDatasets (){
-  console.log("entering display datasets");
-  // yeah all this thisis and charts are a mess to deal with
-
-        if (this.chart){
-          console.log("destroy chart");
-          this.chart.destroy()
-          this.chart = new Chart(canvas, setup);
-        }else{
-          this.chart = new Chart(canvas, setup);
-        }
-    
-      // console.dir(setup)
-      // AND YET IT WORKS HERE AND SHOWS THE VALUE
-      // console.dir(setup.options.scales.Recession.position)
-      //MAYBE YOU TRY TO EXPLICITY DEFINE THE PROPERTY IN THE OBJECT
-      //MAYBE YOU USE AWAITS
-
-      console.log("leaving display datasets");
-} //END displayDatasets
+} //END populateChartData
 
