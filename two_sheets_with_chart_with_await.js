@@ -7,7 +7,7 @@ google.charts.load('current', {
   
 // a globally declared container for the datasets
 var datasets = [];
-var  labels =new Set();
+var labels =new Set();
 
 // Set a callback to run when the Google Visualization API is loaded.
 google.charts.setOnLoadCallback(processControl);
@@ -37,7 +37,9 @@ populateChartData()
 async function feedURLs(){
   
   URLs = [
-    "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=transposed&headers=1",
+    // "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=transposed&headers=1",
+    "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=Bankers_Survey_Averages&headers=1",
+    "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=SNP&headers=1",
     "https://docs.google.com/spreadsheets/d/1SnCv607rx_PSx88E58VXWtcOi_VB0ALD69nAAjPBb-A/gviz/tq?sheet=Recession_Data&headers=1",
   ];
 
@@ -103,11 +105,7 @@ async function handleQueryResponse(response) {
 
     console.log("leaving handleQueryResponse");
   
-    return "done"
-    
-    resolve(()=>{
-      console.log("Promise from handleQueryResponse resolved");})
-    reject(()=>{return console.log("Promise from handleQueryResponse Rejected");})
+
   } // END promise arrow function
 );//END promise
 
@@ -160,7 +158,8 @@ function parseStuff(response){
         label: dataj.rows[i].c[0].v,
         backgroundColor: colors[i],
         borderColor: colors[i],
-        data: series_data
+        data: series_data,
+
       }
       // add completed series to the collection of series
       datasets.push(dataset);
@@ -180,7 +179,6 @@ function populateChartData(){
   
 
   labels = Array.from(labels);
-  console.log("Labels: ", labels);
 
     const chartdata = {
         labels: labels,
@@ -192,7 +190,23 @@ function populateChartData(){
         type: 'line',
         data: chartdata,
         options: {
-
+          scales: {
+            y: {
+              type: 'linear',
+              position: 'left',
+              display: true
+            },
+            SNP:{
+              type: 'linear',
+              position: 'right',
+              display: true
+            },
+            Recession: {
+              type: 'linear',
+              position: 'left',
+              display: false
+            }
+          }, // END Scales
           maintainAspectRatio: false,  // *** Important : this is required or a strange vanishing zoom out effect occurs with the graph.
           plugins: {
             tooltip: {
@@ -222,6 +236,27 @@ function populateChartData(){
           responsive: true,
         }
       }
+
+      console.dir(setup)
+
+      setup.data.datasets[3].type = "bar";
+      setup.data.datasets[3].yAxisID = "Recession"
+      setup.data.datasets[3].categoryPercentage = 1.0
+      setup.data.datasets[3].barPercentage = 1.0
+      setup.data.datasets[3].backgroundColor = `grey`
+      setup.data.datasets[3].borderColor = `grey`
+      setup.data.datasets[3].order = 2
+
+
+      setup.data.datasets[2].type = "line";
+      setup.data.datasets[2].yAxisID = "SNP"
+      setup.data.datasets[2].backgroundColor = `red`
+      setup.data.datasets[2].borderColor = `red`
+      setup.data.datasets[2].order = 0;
+
+      setup.data.datasets[0].fill = {target: 'origin', above: 'rgba(255, 0, 0, 0.25)', below: 'rgba(0, 255, 0, 0.25)'};
+      setup.data.datasets[0].order = 1;
+      setup.data.datasets[0].yAxes = {gridLines: {zeroLineColor: '#000000'}}
 
       // send all packaged data for chart to render
       chart = new Chart(canvas, setup);
